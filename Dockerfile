@@ -1,12 +1,12 @@
 FROM centos:centos7
 
 #System Update
-RUN yum -y update
-RUN yum -y install wget git ImageMagick ImageMagick-devel which
+RUN rpm --rebuilddb && yum -y update && yum clean all
+RUN rpm --rebuilddb && yum -y install wget git ImageMagick ImageMagick-devel which
 
 #MongoDB Install
 COPY mongodb-org-3.4.repo /etc/yum.repos.d/mongodb-org-3.4.repo
-RUN yum install -y --enablerepo=mongodb-org-3.4 mongodb-org
+RUN rpm --rebuilddb && yum install -y --enablerepo=mongodb-org-3.4 mongodb-org
 
 #Ruby(RVM) Install
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
@@ -18,6 +18,6 @@ RUN /bin/bash -l -c "gem install bundler"
 
 #SHIRASAGI Install
 WORKDIR /var/www/shirasagi
-RUN git clone -b stable --depth 1 https://github.com/shirasagi/shirasagi .
+COPY src .
 RUN cp -n config/samples/*.{yml,rb} config/
 RUN /bin/bash -l -c "bundle install --without development test"
